@@ -2,12 +2,13 @@
 
 Este modo evita Blueprint (pago) y corre todo en un solo contenedor:
 
-- MongoDB
 - Data API (FastAPI)
 - MCP server
 - Profiler
 - Main agent
 - Frontend estatico con Nginx
+
+MongoDB en este modo debe ser externo (por ejemplo MongoDB Atlas).
 
 ## Archivo de build
 
@@ -24,6 +25,7 @@ Usar [Dockerfile.render-web](Dockerfile.render-web).
 ## Variables de entorno recomendadas
 
 - AUTH_SECRET_KEY: clave JWT fuerte
+- MONGO_URI: URI de Mongo externa
 - HF_TOKEN: token de Hugging Face
 - HF_MODEL_ID (opcional)
 - HF_MAX_NEW_TOKENS (opcional)
@@ -46,4 +48,4 @@ Todas por localhost dentro del contenedor:
 
 - Este modo es solo para testing.
 - Si falla un proceso, se cae todo el servicio.
-- La base Mongo se guarda en /tmp/mongo-data (efimero).
+- Requiere una instancia Mongo externa accesible desde Render.

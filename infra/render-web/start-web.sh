@@ -3,10 +3,15 @@ set -euo pipefail
 
 export PORT="${PORT:-10000}"
 
-export MONGO_URI="${MONGO_URI:-mongodb://kolb_user:kolb_pass@127.0.0.1:27017}"
+export MONGO_URI="${MONGO_URI:-}"
 export MONGO_DB_NAME="${MONGO_DB_NAME:-kolb_db}"
 export MONGO_KOLB_COLLECTION="${MONGO_KOLB_COLLECTION:-kolb_profiles}"
 export MONGO_USERS_COLLECTION="${MONGO_USERS_COLLECTION:-users}"
+
+if [[ -z "${MONGO_URI}" ]]; then
+  echo "ERROR: MONGO_URI no definido. En Render Web Service unico debes usar Mongo externo (Atlas u otro)." >&2
+  exit 1
+fi
 
 export API_HOST="0.0.0.0"
 export API_PORT="8000"
@@ -19,9 +24,6 @@ export MAIN_PORT="8002"
 export PROFILER_A2A_URL="${PROFILER_A2A_URL:-http://127.0.0.1:8001}"
 export API_BASE_URL="${API_BASE_URL:-http://127.0.0.1:8000}"
 export MCP_SERVER_URL="${MCP_SERVER_URL:-http://127.0.0.1:8080/mcp}"
-
-mkdir -p /tmp/mongo-data /tmp/mongo-log
-mongod --dbpath /tmp/mongo-data --bind_ip 127.0.0.1 --port 27017 --logpath /tmp/mongo-log/mongod.log --fork
 
 envsubst '${PORT}' < /app/infra/render-web/nginx.render.conf.template > /etc/nginx/conf.d/default.conf
 
@@ -42,7 +44,6 @@ PID_NGINX=$!
 
 term_handler() {
   kill "$PID_NGINX" "$PID_MAIN" "$PID_PROFILER" "$PID_MCP" "$PID_DATA" || true
-  mongod --dbpath /tmp/mongo-data --shutdown || true
 }
 
 trap term_handler SIGTERM SIGINT
