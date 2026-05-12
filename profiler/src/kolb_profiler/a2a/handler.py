@@ -82,17 +82,12 @@ class A2AHandler:
         return {"configurable": {"thread_id": task_id}}
 
     async def _start_task(self, task_id: str, user_text: str, metadata: dict[str, Any]) -> Task:
-        student_id = str(metadata.get("student_id") or metadata.get("user_id") or _extract_student_id(user_text) or "")
-        if not student_id:
-            task = Task(
-                id=task_id,
-                status=TaskStatus(
-                    state=TaskState.FAILED,
-                    message="No se encontró un student_id (ObjectId de 24 hex) en el mensaje.",
-                ),
-            )
-            self._tasks[task_id] = task
-            return task
+        student_id = str(
+            metadata.get("student_id")
+            or metadata.get("user_id")
+            or _extract_student_id(user_text)
+            or task_id
+        ).strip()
 
         initial_state: InterviewState = {
             "student_id": student_id,
