@@ -36,13 +36,27 @@ class A2AHandler:
     # Public interface
     # ------------------------------------------------------------------
 
-    async def send(self, task_id: str, message: Message) -> Task:
+    async def send(self, task_id: str, message: Message, metadata: dict[str, Any] | None = None) -> Task:
         """Create a new task or continue an existing one with a new message."""
         user_text = self._extract_text(message)
+        metadata = metadata or {}
 
         if task_id not in self._tasks:
-            return await self._start_task(task_id, user_text)
-        return await self._continue_task(task_id, user_text, message)
+            return await self._start_task(task_id, user_text, metadata)
+        try:
+            return await self._continue_task(task_id, user_text, message)
+        except KeyError as exc:
+            # In rare cases the checkpointed graph state can be lost/corrupted
+            # while the in-memory task still exists. Restarting avoids hard-failing
+            # the whole /chat request with a 500.
+            if str(exc) != "'history'":
+                raise
+            previous = self._tasks.get(task_id)
+            recovered_metadata = dict(metadata)
+            if previous is not None:
+                recovered_metadata = {**previous.metadata, **recovered_metadata}
+            self._tasks.pop(task_id, None)
+            return await self._start_task(task_id, user_text, recovered_metadata)
 
     def get(self, task_id: str) -> Task | None:
         return self._tasks.get(task_id)
@@ -67,8 +81,8 @@ class A2AHandler:
     def _config(self, task_id: str) -> dict:
         return {"configurable": {"thread_id": task_id}}
 
-    async def _start_task(self, task_id: str, user_text: str) -> Task:
-        student_id = _extract_student_id(user_text)
+    async def _start_task(self, task_id: str, user_text: str, metadata: dict[str, Any]) -> Task:
+        student_id = str(metadata.get("student_id") or metadata.get("user_id") or _extract_student_id(user_text) or "")
         if not student_id:
             task = Task(
                 id=task_id,
@@ -82,6 +96,12 @@ class A2AHandler:
 
         initial_state: InterviewState = {
             "student_id": student_id,
+            "user_id": str(metadata.get("user_id") or student_id),
+            "username": str(metadata.get("username") or ""),
+            "alumno_id": str(metadata.get("alumno_id") or student_id),
+            "nombre": str(metadata.get("nombre") or metadata.get("username") or ""),
+            "email": str(metadata.get("email") or ""),
+            "carrera": str(metadata.get("carrera") or ""),
             "history": [],
             "current_scenario": None,
             "current_question": None,
@@ -98,6 +118,7 @@ class A2AHandler:
             id=task_id,
             status=TaskStatus(state=TaskState.WORKING),
             messages=[Message(role="user", parts=[TextPart(text=user_text)])],
+            metadata=dict(metadata),
         )
         self._tasks[task_id] = task
 
