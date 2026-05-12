@@ -118,7 +118,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
             "task_id": session_id,
             "incoming_message": request.message,
             "user_context": request.user.model_dump(),
-            "profiler_metadata": {},
+            "profiler_metadata": request.user.to_profiler_metadata(),
             "a2a_task": None,
             "reply": None,
             "state": None,
