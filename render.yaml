@@ -8,7 +8,7 @@ services:
     autoDeploy: true
     healthCheckPath: /
 
-  - type: private_service
+  - type: pserv
     name: mongodb
     runtime: docker
     dockerContext: ./infra/mongodb
@@ -25,7 +25,7 @@ services:
       mountPath: /data/db
       sizeGB: 10
 
-  - type: private_service
+  - type: pserv
     name: data-api
     runtime: docker
     dockerContext: ./data
@@ -53,7 +53,7 @@ services:
       - key: AUTH_ACCESS_TOKEN_EXPIRE_MINUTES
         value: 60
 
-  - type: private_service
+  - type: pserv
     name: mcp-server
     runtime: docker
     dockerContext: ./mcp_server-kolb
@@ -61,7 +61,7 @@ services:
     plan: starter
     autoDeploy: true
 
-  - type: private_service
+  - type: pserv
     name: profiler
     runtime: docker
     dockerContext: ./profiler
@@ -87,7 +87,7 @@ services:
       - key: HF_TEMPERATURE
         value: 0.7
 
-  - type: private_service
+  - type: pserv
     name: main-agent
     runtime: docker
     dockerContext: ./main
