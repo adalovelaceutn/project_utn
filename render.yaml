@@ -1,0 +1,122 @@
+services:
+  - type: web
+    name: frontend
+    runtime: docker
+    dockerContext: ./frontend/kolb-frontend
+    dockerfilePath: ./frontend/kolb-frontend/Dockerfile
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /
+
+  - type: private_service
+    name: mongodb
+    runtime: docker
+    dockerContext: ./infra/mongodb
+    dockerfilePath: ./infra/mongodb/Dockerfile
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: MONGO_INITDB_ROOT_USERNAME
+        value: kolb_user
+      - key: MONGO_INITDB_ROOT_PASSWORD
+        value: kolb_pass
+    disk:
+      name: mongo-data
+      mountPath: /data/db
+      sizeGB: 10
+
+  - type: private_service
+    name: data-api
+    runtime: docker
+    dockerContext: ./data
+    dockerfilePath: ./data/Dockerfile
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: MONGO_URI
+        value: mongodb://kolb_user:kolb_pass@mongodb:27017
+      - key: MONGO_DB_NAME
+        value: kolb_db
+      - key: MONGO_KOLB_COLLECTION
+        value: kolb_profiles
+      - key: MONGO_USERS_COLLECTION
+        value: users
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_PORT
+        value: 8000
+      - key: AUTH_SECRET_KEY
+        generateValue: true
+      - key: AUTH_ALGORITHM
+        value: HS256
+      - key: AUTH_ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 60
+
+  - type: private_service
+    name: mcp-server
+    runtime: docker
+    dockerContext: ./mcp_server-kolb
+    dockerfilePath: ./mcp_server-kolb/Dockerfile
+    plan: starter
+    autoDeploy: true
+
+  - type: private_service
+    name: profiler
+    runtime: docker
+    dockerContext: ./profiler
+    dockerfilePath: ./profiler/Dockerfile
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: HF_TOKEN
+        sync: false
+      - key: MCP_SERVER_URL
+        value: http://mcp-server:8080/mcp
+      - key: API_BASE_URL
+        value: http://data-api:8000
+      - key: A2A_HOST
+        value: 0.0.0.0
+      - key: A2A_PORT
+        value: 8001
+      - key: HF_MODEL_ID
+        value: Qwen/Qwen2.5-7B-Instruct
+      - key: HF_MAX_NEW_TOKENS
+        value: 512
+      - key: HF_TEMPERATURE
+        value: 0.7
+
+  - type: private_service
+    name: main-agent
+    runtime: docker
+    dockerContext: ./main
+    dockerfilePath: ./main/Dockerfile
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: MAIN_HOST
+        value: 0.0.0.0
+      - key: MAIN_PORT
+        value: 8002
+      - key: PROFILER_A2A_URL
+        value: http://profiler:8001
+      - key: API_BASE_URL
+        value: http://data-api:8000
+      - key: MCP_SERVER_URL
+        value: http://mcp-server:8080/mcp
+      - key: A2A_TIMEOUT_SECONDS
+        value: 45
+      - key: HF_TOKEN
+        sync: false
+      - key: HF_MODEL_ID
+        value: Qwen/Qwen2.5-7B-Instruct
+      - key: HF_MAX_NEW_TOKENS
+        value: 256
+      - key: HF_TEMPERATURE
+        value: 0.1
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: TAVILY_BASE_URL
+        value: https://api.tavily.com

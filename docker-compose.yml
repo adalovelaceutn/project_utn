@@ -1,0 +1,88 @@
+services:
+  frontend:
+    build:
+      context: ./frontend/kolb-frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - data-api
+      - main-agent
+    ports:
+      - "${FRONTEND_PORT:-8080}:8080"
+
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: kolb_user
+      MONGO_INITDB_ROOT_PASSWORD: kolb_pass
+    volumes:
+      - mongo_data:/data/db
+
+  data-api:
+    build:
+      context: ./data
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_URI: mongodb://kolb_user:kolb_pass@mongodb:27017
+      MONGO_DB_NAME: kolb_db
+      MONGO_KOLB_COLLECTION: kolb_profiles
+      MONGO_USERS_COLLECTION: users
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:-change-this-secret-in-production}
+      AUTH_ALGORITHM: HS256
+      AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: 60
+
+  mcp-server:
+    build:
+      context: ./mcp_server-kolb
+      dockerfile: Dockerfile
+    restart: unless-stopped
+
+  profiler:
+    build:
+      context: ./profiler
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - mcp-server
+      - data-api
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+      MCP_SERVER_URL: http://mcp-server:8080/mcp
+      API_BASE_URL: http://data-api:8000
+      A2A_HOST: 0.0.0.0
+      A2A_PORT: 8001
+      HF_MODEL_ID: ${HF_MODEL_ID:-Qwen/Qwen2.5-7B-Instruct}
+      HF_MAX_NEW_TOKENS: ${HF_MAX_NEW_TOKENS:-512}
+      HF_TEMPERATURE: ${HF_TEMPERATURE:-0.7}
+
+  main-agent:
+    build:
+      context: ./main
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - profiler
+      - mcp-server
+      - data-api
+    environment:
+      MAIN_HOST: 0.0.0.0
+      MAIN_PORT: 8002
+      PROFILER_A2A_URL: http://profiler:8001
+      API_BASE_URL: http://data-api:8000
+      MCP_SERVER_URL: http://mcp-server:8080/mcp
+      A2A_TIMEOUT_SECONDS: 45
+      HF_TOKEN: ${HF_TOKEN:-}
+      HF_MODEL_ID: ${HF_MODEL_ID:-Qwen/Qwen2.5-7B-Instruct}
+      HF_MAX_NEW_TOKENS: ${HF_MAX_NEW_TOKENS:-256}
+      HF_TEMPERATURE: ${HF_TEMPERATURE:-0.1}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      TAVILY_BASE_URL: ${TAVILY_BASE_URL:-https://api.tavily.com}
+
+volumes:
+  mongo_data:
