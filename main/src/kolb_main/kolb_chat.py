@@ -10,7 +10,24 @@ from kolb_main.clients.tavily_client import TavilyClient
 
 def _normalize_style(profile: dict[str, Any]) -> str:
     style = str(profile.get("predominant_style") or "").strip()
-    return style or "Convergente"
+    if style:
+        return style
+
+    puntajes = profile.get("puntajes") or {}
+    ce = int(puntajes.get("experiencia_concreta") or 0)
+    ro = int(puntajes.get("observacion_reflexiva") or 0)
+    ac = int(puntajes.get("conceptualizacion_abstracta") or 0)
+    ae = int(puntajes.get("experimentacion_activa") or 0)
+
+    y = ac - ce
+    x = ae - ro
+    if y >= 0 and x >= 0:
+        return "Convergente"
+    if y >= 0 and x < 0:
+        return "Asimilador"
+    if y < 0 and x >= 0:
+        return "Acomodador"
+    return "Divergente"
 
 
 def _format_sources(results: list[dict[str, Any]]) -> str:

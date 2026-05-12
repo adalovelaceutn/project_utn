@@ -10,7 +10,7 @@ from typing_extensions import TypedDict
 
 class InterviewState(TypedDict):
     # Student identification
-    student_id: str
+    dni: str
 
     # Interview progress
     history: list[dict]           # {scenario_id, scenario_title, option_id, dimension, raw_response}

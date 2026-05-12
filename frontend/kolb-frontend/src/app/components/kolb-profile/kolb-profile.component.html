@@ -20,8 +20,8 @@
     <section class="kolb-profile" *ngIf="!loading && profile">
 
       <!-- STYLE CLASSIFICATION CARD -->
-      <div class="style-card" *ngIf="profile.predominant_style">
-        <h2 class="style-title">{{ profile.predominant_style }}</h2>
+      <div class="style-card" *ngIf="predominantStyle">
+        <h2 class="style-title">{{ predominantStyle }}</h2>
           <p class="confidence" *ngIf="profile.confidence_score !== undefined && profile.confidence_score !== null">
           Confianza: {{ (profile.confidence_score * 100).toFixed(0) }}%
         </p>

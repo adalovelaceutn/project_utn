@@ -11,17 +11,12 @@ class KolbDimensions(BaseModel):
 
 
 class KolbProfileBase(BaseModel):
-    user_id: str = Field(..., min_length=1)
-    alumno_id: str = Field(..., min_length=1, max_length=64)
-    nombre: str = Field(..., min_length=1, max_length=120)
-    email: EmailStr
-    carrera: str = Field(..., min_length=1, max_length=120)
+    dni: str = Field(..., min_length=7, max_length=15)
     puntajes: KolbDimensions
-    predominant_style: str | None = Field(None, max_length=30)
     confidence_score: float | None = Field(None, ge=0.0, le=1.0)
     interview_responses: list[dict] | None = Field(None)
 
-    @field_validator("user_id", "alumno_id", "nombre", "carrera", mode="before")
+    @field_validator("dni", mode="before")
     @classmethod
     def trim_text(cls, value: str) -> str:
         return value.strip()
@@ -32,11 +27,7 @@ class KolbProfileCreate(KolbProfileBase):
 
 
 class KolbProfileUpdate(BaseModel):
-    nombre: str | None = Field(None, min_length=1, max_length=120)
-    email: EmailStr | None = None
-    carrera: str | None = Field(None, min_length=1, max_length=120)
     puntajes: KolbDimensions | None = None
-    predominant_style: str | None = Field(None, max_length=30)
     confidence_score: float | None = Field(None, ge=0.0, le=1.0)
     interview_responses: list[dict] | None = Field(None)
 

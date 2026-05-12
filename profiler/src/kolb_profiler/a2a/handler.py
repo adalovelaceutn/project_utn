@@ -18,9 +18,9 @@ from kolb_profiler.a2a.models import (
 from kolb_profiler.agent.state import InterviewState
 
 
-def _extract_student_id(text: str) -> str | None:
-    """Try to extract a student MongoDB ObjectId from a natural-language message."""
-    match = re.search(r"[0-9a-f]{24}", text.lower())
+def _extract_dni(text: str) -> str | None:
+    """Try to extract a DNI-like numeric token from a natural-language message."""
+    match = re.search(r"\b\d{7,15}\b", text)
     return match.group(0) if match else None
 
 
@@ -82,22 +82,14 @@ class A2AHandler:
         return {"configurable": {"thread_id": task_id}}
 
     async def _start_task(self, task_id: str, user_text: str, metadata: dict[str, Any]) -> Task:
-        student_id = str(
-            metadata.get("student_id")
-            or metadata.get("user_id")
-            or metadata.get("id")
-            or _extract_student_id(user_text)
-            or task_id
+        dni = str(
+            metadata.get("dni")
+            or _extract_dni(user_text)
+            or ""
         ).strip()
 
         initial_state: InterviewState = {
-            "student_id": student_id,
-            "user_id": str(metadata.get("user_id") or metadata.get("student_id") or metadata.get("id") or student_id),
-            "username": str(metadata.get("username") or metadata.get("user_name") or ""),
-            "alumno_id": str(metadata.get("alumno_id") or student_id),
-            "nombre": str(metadata.get("nombre") or metadata.get("username") or metadata.get("user_name") or ""),
-            "email": str(metadata.get("email") or ""),
-            "carrera": str(metadata.get("carrera") or ""),
+            "dni": dni,
             "history": [],
             "current_scenario": None,
             "current_question": None,

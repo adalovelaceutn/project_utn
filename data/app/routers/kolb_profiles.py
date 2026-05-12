@@ -75,22 +75,17 @@ def _normalize_confidence(payload: dict[str, Any]) -> float | None:
 
 
 async def _normalize_legacy_profile(payload: dict[str, Any]) -> KolbProfileCreate:
-    user_id = payload.get("user_id") or payload.get("student_id") or payload.get("id")
     username = payload.get("username") or payload.get("user_name")
+    dni = payload.get("dni")
 
-    if not user_id and username:
+    if not dni and username:
         user = await crud_users.get_user_by_username(str(username))
         if user is not None:
-            user_id = user.id
+            dni = user.dni
 
     normalized = {
-        "user_id": str(user_id or "").strip(),
-        "alumno_id": str(payload.get("alumno_id") or payload.get("dni") or user_id or username or "").strip(),
-        "nombre": str(payload.get("nombre") or payload.get("full_name") or username or "Sin nombre").strip(),
-        "email": str(payload.get("email") or "sin-informar@example.com").strip(),
-        "carrera": str(payload.get("carrera") or payload.get("career") or "Sin informar").strip(),
+        "dni": str(dni or "").strip(),
         "puntajes": _normalize_scores(payload),
-        "predominant_style": payload.get("predominant_style") or payload.get("style"),
         "confidence_score": _normalize_confidence(payload),
         "interview_responses": payload.get("interview_responses") or payload.get("interview") or [],
     }
@@ -100,9 +95,9 @@ async def _normalize_legacy_profile(payload: dict[str, Any]) -> KolbProfileCreat
 
 @router.post("", response_model=KolbProfileInDB, status_code=status.HTTP_201_CREATED)
 async def create_kolb_profile(profile: KolbProfileCreate) -> KolbProfileInDB:
-    user = await crud_users.get_user_by_id(profile.user_id)
+    user = await crud_users.get_user_by_dni(profile.dni)
     if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado para ese dni")
     try:
         return await crud_kolb_profiles.create_profile(profile)
     except ValueError as exc:
@@ -132,9 +127,9 @@ async def get_kolb_profile(profile_id: str) -> KolbProfileInDB:
     return profile
 
 
-@router.get("/by-student/{alumno_id}", response_model=KolbProfileInDB)
-async def get_kolb_profile_by_alumno_id(alumno_id: str) -> KolbProfileInDB:
-    profile = await crud_kolb_profiles.get_profile_by_alumno_id(alumno_id)
+@router.get("/by-dni/{dni}", response_model=KolbProfileInDB)
+async def get_kolb_profile_by_dni(dni: str) -> KolbProfileInDB:
+    profile = await crud_kolb_profiles.get_profile_by_dni(dni)
     if not profile:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil no encontrado")
     return profile
@@ -142,7 +137,10 @@ async def get_kolb_profile_by_alumno_id(alumno_id: str) -> KolbProfileInDB:
 
 @router.get("/by-user/{user_id}", response_model=KolbProfileInDB)
 async def get_kolb_profile_by_user_id(user_id: str) -> KolbProfileInDB:
-    profile = await crud_kolb_profiles.get_profile_by_user_id(user_id)
+    user = await crud_users.get_user_by_id(user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+    profile = await crud_kolb_profiles.get_profile_by_dni(user.dni)
     if not profile:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil no encontrado")
     return profile
@@ -150,7 +148,15 @@ async def get_kolb_profile_by_user_id(user_id: str) -> KolbProfileInDB:
 
 @router.get("/by-user/{user_id}/optional", response_model=KolbProfileInDB | None)
 async def get_kolb_profile_by_user_id_optional(user_id: str) -> KolbProfileInDB | None:
-    return await crud_kolb_profiles.get_profile_by_user_id(user_id)
+    user = await crud_users.get_user_by_id(user_id)
+    if user is None:
+        return None
+    return await crud_kolb_profiles.get_profile_by_dni(user.dni)
+
+
+@router.get("/by-dni/{dni}/optional", response_model=KolbProfileInDB | None)
+async def get_kolb_profile_by_dni_optional(dni: str) -> KolbProfileInDB | None:
+    return await crud_kolb_profiles.get_profile_by_dni(dni)
 
 
 @router.get("/by-username/{username}", response_model=KolbProfileInDB)
@@ -159,7 +165,7 @@ async def get_kolb_profile_by_username(username: str) -> KolbProfileInDB:
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
 
-    profile = await crud_kolb_profiles.get_profile_by_user_id(user.id)
+    profile = await crud_kolb_profiles.get_profile_by_dni(user.dni)
     if profile is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil no encontrado")
     return profile
@@ -170,7 +176,7 @@ async def get_kolb_profile_by_username_optional(username: str) -> KolbProfileInD
     user = await crud_users.get_user_by_username(username)
     if user is None:
         return None
-    return await crud_kolb_profiles.get_profile_by_user_id(user.id)
+    return await crud_kolb_profiles.get_profile_by_dni(user.dni)
 
 
 @router.put("/{profile_id}", response_model=KolbProfileInDB)

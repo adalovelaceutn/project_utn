@@ -10,8 +10,7 @@ from app.schemas import KolbProfileCreate, KolbProfileInDB, KolbProfileUpdate
 
 async def ensure_kolb_indexes() -> None:
     collection = get_kolb_collection()
-    await collection.create_index([("alumno_id", ASCENDING)], unique=True)
-    await collection.create_index([("user_id", ASCENDING)], unique=True)
+    await collection.create_index([("dni", ASCENDING)], unique=True)
 
 
 def _serialize_profile(document: dict) -> KolbProfileInDB:
@@ -29,7 +28,7 @@ async def create_profile(profile: KolbProfileCreate) -> KolbProfileInDB:
     try:
         result = await collection.insert_one(payload)
     except DuplicateKeyError as exc:
-        raise ValueError("El usuario o alumno ya tiene perfil Kolb") from exc
+        raise ValueError("El dni ya tiene perfil Kolb") from exc
 
     saved = await collection.find_one({"_id": result.inserted_id})
     return _serialize_profile(saved)
@@ -52,17 +51,9 @@ async def get_profile_by_id(profile_id: str) -> KolbProfileInDB | None:
     return _serialize_profile(doc)
 
 
-async def get_profile_by_alumno_id(alumno_id: str) -> KolbProfileInDB | None:
+async def get_profile_by_dni(dni: str) -> KolbProfileInDB | None:
     collection = get_kolb_collection()
-    doc = await collection.find_one({"alumno_id": alumno_id})
-    if not doc:
-        return None
-    return _serialize_profile(doc)
-
-
-async def get_profile_by_user_id(user_id: str) -> KolbProfileInDB | None:
-    collection = get_kolb_collection()
-    doc = await collection.find_one({"user_id": user_id})
+    doc = await collection.find_one({"dni": dni})
     if not doc:
         return None
     return _serialize_profile(doc)
@@ -96,6 +87,6 @@ async def delete_profile(profile_id: str) -> bool:
     return result.deleted_count == 1
 
 
-async def delete_profile_by_user_id(user_id: str) -> None:
+async def delete_profile_by_dni(dni: str) -> None:
     collection = get_kolb_collection()
-    await collection.delete_one({"user_id": user_id})
+    await collection.delete_one({"dni": dni})

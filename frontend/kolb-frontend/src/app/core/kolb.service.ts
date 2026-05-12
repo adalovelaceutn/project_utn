@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { KolbProfile, KolbProfilePayload, ProfileTheory } from './models';
 
-export type KolbProfileUpdatePayload = Partial<Omit<KolbProfilePayload, 'user_id'>>;
+export type KolbProfileUpdatePayload = Partial<Omit<KolbProfilePayload, 'dni'>>;
 
 @Injectable({ providedIn: 'root' })
 export class KolbService {

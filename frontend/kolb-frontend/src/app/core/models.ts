@@ -40,13 +40,8 @@ export interface KolbDimensions {
 
 export interface KolbProfile {
   id: string;
-  user_id: string;
-  alumno_id: string;
-  nombre: string;
-  email: string;
-  carrera: string;
+  dni: string;
   puntajes: KolbDimensions;
-  predominant_style?: string | null;
   confidence_score?: number | null;
   interview_responses?: Array<{
     scenario: string;
@@ -58,12 +53,14 @@ export interface KolbProfile {
 }
 
 export interface KolbProfilePayload {
-  user_id: string;
-  alumno_id: string;
-  nombre: string;
-  email: string;
-  carrera: string;
+  dni: string;
   puntajes: KolbDimensions;
+  confidence_score?: number | null;
+  interview_responses?: Array<{
+    scenario: string;
+    response: string;
+    classification: string;
+  }> | null;
 }
 
 export interface ChatMessage {

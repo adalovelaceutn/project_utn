@@ -61,7 +61,7 @@ def test_calculate_profile_convergente():
     history = _make_history(["CA"] * 4 + ["EA"] * 4 + ["OR"] * 2 + ["EC"] * 2)
     profile = _calculate_profile("abc123", history)
     assert profile["predominant_style"] == "Convergente"
-    assert profile["id_student"] == "abc123"
+    assert profile["student_id"] == "abc123"
     assert 0 <= profile["confidence_score"] <= 1
 
 
@@ -79,6 +79,7 @@ def test_calculate_profile_axis_mapping():
     assert profile["axis_scores"]["RO"] == 3
     assert profile["axis_scores"]["AC"] == 3
     assert profile["axis_scores"]["AE"] == 3
+    assert profile["puntajes"]["experiencia_concreta"] == 25
 
 
 # ---------------------------------------------------------------------------
@@ -119,7 +120,7 @@ async def test_graph_starts_and_interrupts():
     from kolb_profiler.agent.state import InterviewState
 
     initial: InterviewState = {
-        "student_id": "6630000000000000deadbeef",
+        "dni": "18447836",
         "history": [],
         "current_scenario": None,
         "current_question": None,

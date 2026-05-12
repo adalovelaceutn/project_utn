@@ -64,8 +64,8 @@ async def _classify_with_llm(scenario: dict, response: str, llm) -> str:
     return match.group(1) if match else "OR"  # default fallback
 
 
-def _calculate_profile(student_id: str, history: list[dict]) -> dict:
-    """Compute the Kolb profile dict ready to POST to the API."""
+def _calculate_profile(dni: str, history: list[dict]) -> dict:
+    """Compute a summarized Kolb profile from the interview history."""
     scores = {d: 0 for d in _VALID_DIMS}
     interview_items = []
 
@@ -99,8 +99,15 @@ def _calculate_profile(student_id: str, history: list[dict]) -> dict:
     max_d = math.sqrt(2) * n
     confidence = round(min(distance / max_d, 1.0), 2)
 
+    normalized_scores = {
+        "experiencia_concreta": round((scores["EC"] / n) * 100),
+        "observacion_reflexiva": round((scores["OR"] / n) * 100),
+        "conceptualizacion_abstracta": round((scores["CA"] / n) * 100),
+        "experimentacion_activa": round((scores["EA"] / n) * 100),
+    }
+
     return {
-        "id_student": student_id,
+        "dni": dni,
         "last_evaluation_date": date.today().isoformat(),
         "predominant_style": style,
         "confidence_score": confidence,
@@ -110,8 +117,18 @@ def _calculate_profile(student_id: str, history: list[dict]) -> dict:
             "AC": scores["CA"],
             "AE": scores["EA"],
         },
+        "puntajes": normalized_scores,
         "interview": interview_items,
         "evidence": [],
+    }
+
+
+def _build_persist_payload(state: InterviewState, profile: dict) -> dict | None:
+    return {
+        "dni": state.get("dni", "").strip(),
+        "puntajes": profile["puntajes"],
+        "confidence_score": profile.get("confidence_score"),
+        "interview_responses": profile.get("interview", []),
     }
 
 
@@ -182,12 +199,13 @@ def make_nodes(mcp_client: KolbMCPClient, api_client: ProfilerAPIClient, llm):
 
     async def finalize_node(state: InterviewState) -> dict:
         """Calculate the Kolb profile, persist it, and generate a farewell."""
-        profile = _calculate_profile(state["student_id"], state["history"])
+        profile = _calculate_profile(state.get("dni", ""), state["history"])
 
         persisted_id: str | None = None
         error: str | None = None
+        persist_payload = _build_persist_payload(state, profile)
         try:
-            persisted_id = await api_client.create_profile(profile)
+            persisted_id = await api_client.upsert_profile(persist_payload)
         except Exception as exc:
             error = f"API persist failed: {exc}"
 

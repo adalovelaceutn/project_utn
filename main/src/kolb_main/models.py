@@ -12,20 +12,12 @@ class ChatUserContext(BaseModel):
     apellido: str | None = None
     email: str | None = None
     dni: str | None = None
-    carrera: str | None = None
 
     def to_profiler_metadata(self) -> dict[str, str]:
-        full_name = " ".join(part for part in [self.nombre, self.apellido] if part).strip()
         return {
-            "student_id": self.id,
-            "user_id": self.id,
             "username": self.username,
             "user_name": self.username,
-            "id": self.id,
-            "alumno_id": (self.dni or self.id),
-            "nombre": full_name or self.username,
-            "email": self.email or "sin-informar@example.com",
-            "carrera": self.carrera or "Sin informar",
+            "dni": (self.dni or "").strip(),
         }
 
 

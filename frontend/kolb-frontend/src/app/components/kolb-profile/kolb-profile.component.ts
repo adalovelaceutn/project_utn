@@ -57,8 +57,9 @@ export class KolbProfileComponent implements OnInit {
         tap((profile) => {
           console.log('[KolbProfile] API response:', profile);
           this.profile = profile;
-          if (profile?.predominant_style) {
-            this.loadTheory(profile.predominant_style);
+          const style = profile ? this.getStyleFromScores(profile) : null;
+          if (style) {
+            this.loadTheory(style);
           }
           this.cdr.markForCheck();
         }),
@@ -126,5 +127,33 @@ export class KolbProfileComponent implements OnInit {
     });
 
     return points.join(' ');
+  }
+
+  get predominantStyle(): string {
+    if (!this.profile) {
+      return '';
+    }
+    return this.getStyleFromScores(this.profile);
+  }
+
+  private getStyleFromScores(profile: KolbProfile): string {
+    const ce = profile.puntajes.experiencia_concreta;
+    const ro = profile.puntajes.observacion_reflexiva;
+    const ac = profile.puntajes.conceptualizacion_abstracta;
+    const ae = profile.puntajes.experimentacion_activa;
+
+    const y = ac - ce;
+    const x = ae - ro;
+
+    if (y >= 0 && x >= 0) {
+      return 'Convergente';
+    }
+    if (y >= 0 && x < 0) {
+      return 'Asimilador';
+    }
+    if (y < 0 && x >= 0) {
+      return 'Acomodador';
+    }
+    return 'Divergente';
   }
 }
