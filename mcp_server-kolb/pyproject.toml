@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kolb-profile-server"
+version = "0.1.0"
+description = "MCP server for Kolb profile operations"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "mcp>=1.4.0",
+  "uvicorn[standard]>=0.32.0",
+  "watchfiles>=0.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "ruff>=0.6.0"
+]
+
+[project.scripts]
+kolb-profile-server = "kolb_profile_server.server:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
