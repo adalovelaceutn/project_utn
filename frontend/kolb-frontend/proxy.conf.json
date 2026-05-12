@@ -1,0 +1,17 @@
+{
+  "/api": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/main-api": {
+    "target": "http://127.0.0.1:8002",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/main-api": ""
+    },
+    "logLevel": "debug"
+  }
+}

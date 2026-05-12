@@ -1,0 +1,45 @@
+@use '@angular/material' as mat;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+:root {
+	--bg-app: #f7f7f7;
+	--surface: #ffffff;
+	--text-main: #1f1f1f;
+	--text-soft: #5a5a5a;
+	--line-soft: #e8e8e8;
+}
+
+html {
+	color-scheme: light;
+	@include mat.theme(
+		(
+			color: mat.$azure-palette,
+			typography: (plain-family: 'Montserrat', brand-family: 'Montserrat'),
+			density: 0
+		)
+	);
+}
+
+body {
+	margin: 0;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 17px;
+	background: var(--bg-app);
+	color: var(--text-main);
+	line-height: 1.45;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+	border-radius: 0 !important;
+}
+
+.mat-mdc-form-field {
+	width: 100%;
+}

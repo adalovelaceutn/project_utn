@@ -1,0 +1,128 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Perfil Kolb</mat-card-title>
+    <mat-card-subtitle>Generado automáticamente por el agente Kolb</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- LOADING STATE -->
+    <section class="kolb-empty" *ngIf="loading">
+      <p>Cargando perfil Kolb...</p>
+    </section>
+
+    <!-- NO PROFILE STATE -->
+    <section class="kolb-empty" *ngIf="!loading && !profile">
+      <h3>Perfil no disponible</h3>
+      <p>Este perfil no se carga manualmente. Se crea desde el chat con el agente Kolb durante la entrevista.</p>
+    </section>
+
+    <!-- PROFILE DISPLAY -->
+    <section class="kolb-profile" *ngIf="!loading && profile">
+
+      <!-- STYLE CLASSIFICATION CARD -->
+      <div class="style-card" *ngIf="profile.predominant_style">
+        <h2 class="style-title">{{ profile.predominant_style }}</h2>
+          <p class="confidence" *ngIf="profile.confidence_score !== undefined && profile.confidence_score !== null">
+          Confianza: {{ (profile.confidence_score * 100).toFixed(0) }}%
+        </p>
+      </div>
+
+      <!-- THEORY CARDS -->
+      <div class="theory-section" *ngIf="!theoryLoading && theory">
+        <h3>Características del Perfil</h3>
+        <div class="theory-grid">
+          <mat-card class="theory-card">
+            <mat-card-header>
+              <mat-card-title>Fórmula</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>{{ theory.formula }}</mat-card-content>
+          </mat-card>
+
+          <mat-card class="theory-card">
+            <mat-card-header>
+              <mat-card-title>Descripción</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>{{ theory.descripcion }}</mat-card-content>
+          </mat-card>
+
+          <mat-card class="theory-card">
+            <mat-card-header>
+              <mat-card-title>Estrategia del Agente</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>{{ theory.estrategia_agente }}</mat-card-content>
+          </mat-card>
+
+          <mat-card class="theory-card">
+            <mat-card-header>
+              <mat-card-title>Ejes del Modelo</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <ul>
+                <li *ngFor="let entry of theory.ejes | keyvalue">
+                  <strong>{{ entry.key }}:</strong> {{ entry.value }}
+                </li>
+              </ul>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <mat-card class="theory-card-full">
+          <mat-card-header>
+            <mat-card-title>Ciclo de Kolb</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>{{ theory.descripcion_modelo }}</mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- SCORES DISPLAY -->
+      <h3>Puntajes</h3>
+      <div class="score-grid">
+        <p><strong>Experiencia Concreta:</strong> {{ profile.puntajes.experiencia_concreta }}</p>
+        <p><strong>Observación Reflexiva:</strong> {{ profile.puntajes.observacion_reflexiva }}</p>
+        <p><strong>Conceptualización Abstracta:</strong> {{ profile.puntajes.conceptualizacion_abstracta }}</p>
+        <p><strong>Experimentación Activa:</strong> {{ profile.puntajes.experimentacion_activa }}</p>
+      </div>
+
+      <!-- RADAR CHART -->
+      <div class="radar-box">
+        <svg viewBox="0 0 320 320" role="img" aria-label="Radar del perfil Kolb">
+          <polygon points="160,50 270,160 160,270 50,160" class="radar-grid"></polygon>
+          <line x1="160" y1="160" x2="160" y2="50" class="radar-axis"></line>
+          <line x1="160" y1="160" x2="270" y2="160" class="radar-axis"></line>
+          <line x1="160" y1="160" x2="160" y2="270" class="radar-axis"></line>
+          <line x1="160" y1="160" x2="50" y2="160" class="radar-axis"></line>
+
+          <polygon [attr.points]="radarPoints" class="radar-shape"></polygon>
+
+          <text x="160" y="35">EC</text>
+          <text x="280" y="165">OR</text>
+          <text x="155" y="292">CA</text>
+          <text x="28" y="165">EA</text>
+        </svg>
+      </div>
+
+      <!-- INTERVIEW RESPONSES -->
+      <div class="responses-section" *ngIf="profile.interview_responses && profile.interview_responses.length > 0">
+        <h3>Respuestas del Estudiante</h3>
+        <div class="responses-grid">
+          <mat-card class="response-card" *ngFor="let item of profile.interview_responses; let idx = index">
+            <mat-card-header>
+              <mat-card-title>Escenario {{ idx + 1 }}: {{ item.scenario }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p><strong>Respuesta:</strong> {{ item.response }}</p>
+              <p><strong>Clasificación:</strong> <span class="classification-badge">{{ item.classification }}</span></p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- INTERPRETACIÓN -->
+      <h3>Interpretación Teórica</h3>
+      <ul>
+        <li *ngFor="let item of kolbTheory">{{ item }}</li>
+      </ul>
+
+    </section>
+  </mat-card-content>
+</mat-card>

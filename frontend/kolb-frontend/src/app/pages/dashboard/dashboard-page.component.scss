@@ -1,0 +1,157 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f7f7f7;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #ffffff;
+  color: #1f1f1f;
+  border-bottom: 1px solid #e8e8e8;
+  min-height: 54px;
+  padding: 0 0.35rem;
+}
+
+.topbar-brand {
+  display: grid;
+  line-height: 1.1;
+}
+
+.topbar-title {
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.topbar-subtitle {
+  font-size: 0.76rem;
+  color: #686868;
+  letter-spacing: 0.08em;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.logout-icon {
+  color: #4b4b4b;
+}
+
+.layout-shell {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.2rem;
+  padding: 1.2rem;
+}
+
+.sidebar {
+  background: #ffffff;
+  border: 1px solid #ececec;
+  border-radius: 0;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.panel-link {
+  justify-content: flex-start;
+  padding: 0;
+  min-width: 0;
+  width: fit-content;
+  color: #5a5a5a;
+  line-height: 1.2;
+  font-weight: 450;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}
+
+.panel-link.active {
+  color: #111111;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sidebar-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: #6a6a6a;
+}
+
+.content-area {
+  min-height: 420px;
+}
+
+.kolb-empty-state {
+  margin-bottom: 1rem;
+  border-radius: 0;
+  border: 1px solid #e7e7e7;
+  background: #ffffff;
+  padding: 1rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.kolb-empty-state mat-icon {
+  color: #6c6c6c;
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+}
+
+.kolb-empty-state h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #2b2b2b;
+}
+
+.kolb-empty-state p {
+  margin: 0;
+  color: #5f5f5f;
+}
+
+.kolb-empty-state button {
+  justify-self: start;
+}
+
+.loading-box {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.7rem;
+}
+
+@media (min-width: 980px) {
+  .content-area {
+    padding-right: 0.3rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .layout-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .panel-link {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .sidebar-note {
+    grid-column: 1 / -1;
+  }
+
+  .kolb-empty-state {
+    padding: 0.9rem;
+  }
+}

@@ -1,0 +1,17 @@
+mat-card {
+  border-radius: 0;
+  background: #ffffff;
+  border: 1px solid #ebebeb;
+}
+
+.form-grid {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+}
+
+button {
+  height: 46px;
+  border-radius: 0;
+}

@@ -1,0 +1,69 @@
+<section class="auth-wrapper">
+  <mat-card class="auth-card">
+    <h1>LOVELACE</h1>
+    <p>Perfil de Aprendizaje</p>
+
+    <mat-tab-group>
+      <mat-tab label="Login">
+        <form class="form-grid" [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <mat-form-field appearance="outline">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" />
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit" [disabled]="loadingLogin()">
+            {{ loadingLogin() ? 'Ingresando...' : 'Ingresar' }}
+          </button>
+        </form>
+      </mat-tab>
+
+      <mat-tab label="Crear Usuario">
+        <form class="form-grid" [formGroup]="registerForm" (ngSubmit)="onRegister()">
+          <mat-form-field appearance="outline">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>DNI</mat-label>
+            <input matInput formControlName="dni" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="apellido" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Telefono</mat-label>
+            <input matInput formControlName="telefono" />
+          </mat-form-field>
+
+          <button mat-raised-button color="accent" type="submit" [disabled]="loadingRegister()">
+            {{ loadingRegister() ? 'Creando...' : 'Crear usuario' }}
+          </button>
+        </form>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
+</section>

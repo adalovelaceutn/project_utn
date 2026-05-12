@@ -1,0 +1,51 @@
+<section class="dashboard-root">
+  <mat-toolbar color="primary" class="topbar">
+    <div class="topbar-brand">
+      <span class="topbar-title">LOVELACE</span>
+      <span class="topbar-subtitle">PERFIL DE APRENDIZAJE</span>
+    </div>
+    <span class="spacer"></span>
+    <button mat-icon-button aria-label="Cerrar sesion" class="logout-icon" (click)="logout()">
+      <mat-icon>door_back</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="layout-shell">
+    <aside class="sidebar">
+      <button mat-button class="panel-link" [class.active]="selectedSection === 'user'" (click)="selectSection('user')">
+        Datos del Usuario
+      </button>
+      <button mat-button class="panel-link" [class.active]="selectedSection === 'kolb'" (click)="selectSection('kolb')">
+        Perfil Kolb
+      </button>
+      <button mat-button class="panel-link" [class.active]="selectedSection === 'chat'" (click)="selectSection('chat')">
+        Chat
+      </button>
+
+      <p class="sidebar-note" *ngIf="!checkingProfile && !kolbProfileExists">
+        No tienes perfil Kolb cargado. Se crea automaticamente mediante la entrevista del agente en Chat.
+      </p>
+    </aside>
+
+    <main class="content-area">
+      <div class="loading-box" *ngIf="checkingProfile">
+        <mat-spinner diameter="42"></mat-spinner>
+        <p>Verificando perfil Kolb...</p>
+      </div>
+
+      <ng-container *ngIf="!checkingProfile">
+        <section class="kolb-empty-state" *ngIf="!kolbProfileExists && selectedSection === 'kolb'">
+          <mat-icon>psychology</mat-icon>
+          <div>
+            <h3>Aun no tenes perfil Kolb</h3>
+            <p>El perfil se construye solo con la entrevista del agente Kolb desde la seccion Chat.</p>
+          </div>
+        </section>
+
+        <app-user-data *ngIf="selectedSection === 'user'" />
+        <app-kolb-profile *ngIf="selectedSection === 'kolb'" />
+        <app-chat *ngIf="selectedSection === 'chat'" />
+      </ng-container>
+    </main>
+  </div>
+</section>
