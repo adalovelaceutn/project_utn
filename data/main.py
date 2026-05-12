@@ -7,6 +7,7 @@ from app.crud_kolb_profiles import ensure_kolb_indexes
 from app.crud_users import ensure_user_indexes
 from app.database import close_mongo_connection, connect_to_mongo
 from app.routers.auth import router as auth_router
+from app.routers.kolb_profiles import legacy_router as kolb_profiles_legacy_router
 from app.routers.kolb_profiles import router as kolb_profiles_router
 from app.routers.users import router as users_router
 
@@ -42,6 +43,7 @@ app.add_middleware(
 )
 
 app.include_router(kolb_profiles_router)
+app.include_router(kolb_profiles_legacy_router)
 app.include_router(users_router)
 app.include_router(auth_router)
 

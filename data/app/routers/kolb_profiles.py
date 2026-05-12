@@ -5,6 +5,7 @@ from app.schemas import KolbProfileCreate, KolbProfileInDB, KolbProfileUpdate
 
 
 router = APIRouter(prefix="/api/v1/kolb-profiles", tags=["kolb-profiles"])
+legacy_router = APIRouter(prefix="/api/v1/profiler", tags=["kolb-profiles-legacy"])
 
 
 @router.post("", response_model=KolbProfileInDB, status_code=status.HTTP_201_CREATED)
@@ -16,6 +17,12 @@ async def create_kolb_profile(profile: KolbProfileCreate) -> KolbProfileInDB:
         return await crud_kolb_profiles.create_profile(profile)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@legacy_router.post("/", response_model=KolbProfileInDB, status_code=status.HTTP_201_CREATED)
+async def create_kolb_profile_legacy(profile: KolbProfileCreate) -> KolbProfileInDB:
+    # Backward-compatible path used by older profiler clients.
+    return await create_kolb_profile(profile)
 
 
 @router.get("", response_model=list[KolbProfileInDB])
