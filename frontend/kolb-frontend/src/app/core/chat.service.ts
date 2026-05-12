@@ -23,7 +23,10 @@ export class ChatService {
       session_id: sessionId,
       user: {
         id: user.id,
+        user_id: user.id,
+        student_id: user.id,
         username: user.username,
+        user_name: user.username,
         nombre: user.nombre,
         apellido: user.apellido,
         email: user.email,

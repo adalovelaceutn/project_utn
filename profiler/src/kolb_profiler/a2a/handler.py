@@ -85,16 +85,17 @@ class A2AHandler:
         student_id = str(
             metadata.get("student_id")
             or metadata.get("user_id")
+            or metadata.get("id")
             or _extract_student_id(user_text)
             or task_id
         ).strip()
 
         initial_state: InterviewState = {
             "student_id": student_id,
-            "user_id": str(metadata.get("user_id") or student_id),
-            "username": str(metadata.get("username") or ""),
+            "user_id": str(metadata.get("user_id") or metadata.get("student_id") or metadata.get("id") or student_id),
+            "username": str(metadata.get("username") or metadata.get("user_name") or ""),
             "alumno_id": str(metadata.get("alumno_id") or student_id),
-            "nombre": str(metadata.get("nombre") or metadata.get("username") or ""),
+            "nombre": str(metadata.get("nombre") or metadata.get("username") or metadata.get("user_name") or ""),
             "email": str(metadata.get("email") or ""),
             "carrera": str(metadata.get("carrera") or ""),
             "history": [],

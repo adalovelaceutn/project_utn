@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 
 class ChatUserContext(BaseModel):
-    id: str
-    username: str
+    id: str = Field(validation_alias=AliasChoices("id", "user_id", "student_id"))
+    username: str = Field(validation_alias=AliasChoices("username", "user_name"))
     nombre: str | None = None
     apellido: str | None = None
     email: str | None = None
@@ -20,6 +20,8 @@ class ChatUserContext(BaseModel):
             "student_id": self.id,
             "user_id": self.id,
             "username": self.username,
+            "user_name": self.username,
+            "id": self.id,
             "alumno_id": (self.dni or self.id),
             "nombre": full_name or self.username,
             "email": self.email or "sin-informar@example.com",
