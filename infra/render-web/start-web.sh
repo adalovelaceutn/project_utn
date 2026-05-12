@@ -25,7 +25,7 @@ export PROFILER_A2A_URL="${PROFILER_A2A_URL:-http://127.0.0.1:8001}"
 export API_BASE_URL="${API_BASE_URL:-http://127.0.0.1:8000}"
 export MCP_SERVER_URL="${MCP_SERVER_URL:-http://127.0.0.1:8080/mcp}"
 
-envsubst '${PORT}' < /app/infra/render-web/nginx.render.conf.template > /etc/nginx/conf.d/default.conf
+sed "s/__PORT__/${PORT}/g" /app/infra/render-web/nginx.render.conf.template > /etc/nginx/conf.d/default.conf
 
 python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --app-dir /app/data &
 PID_DATA=$!
