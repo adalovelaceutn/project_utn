@@ -7,7 +7,7 @@
   <mat-card-content class="chat-content">
     <div #chatWindow class="chat-window">
       <div class="message" *ngFor="let message of messages" [class.user]="message.role === 'user'">
-        <span class="bubble-role">{{ message.role === 'user' ? 'Tu' : 'Agente' }}</span>
+        <span class="bubble-role">{{ message.role === 'user' ? 'Tu' : 'Qolby' }}</span>
         <span class="bubble-text">{{ message.text }}</span>
       </div>
     </div>
