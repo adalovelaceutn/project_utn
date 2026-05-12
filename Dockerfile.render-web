@@ -1,0 +1,52 @@
+FROM node:22-bookworm AS frontend_build
+
+WORKDIR /app/frontend/kolb-frontend
+COPY frontend/kolb-frontend/package*.json ./
+RUN npm ci
+COPY frontend/kolb-frontend/ ./
+RUN npm run build -- --configuration production
+
+FROM mongo:7
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    python3-venv \
+    build-essential \
+    nginx \
+    gettext-base \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY data/requirements.txt /app/data/requirements.txt
+RUN pip3 install --no-cache-dir -r /app/data/requirements.txt
+
+COPY mcp_server-kolb/pyproject.toml /app/mcp_server-kolb/pyproject.toml
+COPY mcp_server-kolb/src /app/mcp_server-kolb/src
+RUN pip3 install --no-cache-dir -e /app/mcp_server-kolb
+
+COPY profiler/pyproject.toml /app/profiler/pyproject.toml
+COPY profiler/src /app/profiler/src
+RUN pip3 install --no-cache-dir -e /app/profiler
+
+COPY main/pyproject.toml /app/main/pyproject.toml
+COPY main/src /app/main/src
+RUN pip3 install --no-cache-dir -e /app/main
+
+COPY data/main.py /app/data/main.py
+COPY data/app /app/data/app
+
+COPY infra/render-web /app/infra/render-web
+COPY --from=frontend_build /app/frontend/kolb-frontend/dist/kolb-frontend/browser /app/frontend_dist
+
+RUN chmod +x /app/infra/render-web/start-web.sh
+
+EXPOSE 10000
+
+CMD ["/app/infra/render-web/start-web.sh"]
