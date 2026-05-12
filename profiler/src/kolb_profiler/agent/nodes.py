@@ -205,6 +205,7 @@ def make_nodes(mcp_client: KolbMCPClient, api_client: ProfilerAPIClient, llm):
         error: str | None = None
         persist_payload = _build_persist_payload(state, profile)
         try:
+            print("Payload.... antes:",persist_payload)
             persisted_id = await api_client.upsert_profile(persist_payload)
         except Exception as exc:
             error = f"API persist failed: {exc}"

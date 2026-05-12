@@ -11,6 +11,7 @@ class ProfilerAPIClient:
 
     async def create_profile(self, profile: dict) -> str:
         """POST /api/v1/kolb-profiles and return the created profile id."""
+        print(f"Creating profile with DNI on {self._base_url}/api/v1/kolb-profiles:", profile.get("dni"))
         async with httpx.AsyncClient(timeout=30, follow_redirects=True) as client:
             resp = await client.post(
                 f"{self._base_url}/api/v1/kolb-profiles",
@@ -39,6 +40,7 @@ class ProfilerAPIClient:
             return resp.json()["id"]
 
     async def upsert_profile(self, profile: dict) -> str:
+        print("Upsert profile with DNI:", profile.get("dni"))
         """Create or update a Kolb profile by unique dni."""
         existing = await self.get_profile_by_dni(profile["dni"])
         if existing and existing.get("id"):
@@ -47,5 +49,7 @@ class ProfilerAPIClient:
                 "confidence_score": profile.get("confidence_score"),
                 "interview_responses": profile.get("interview_responses"),
             }
+            print("Updating profile with ID:", existing["id"], "Payload:", update_payload)
             return await self.update_profile(existing["id"], update_payload)
+        print("Creating new profile with DNI:", profile.get("dni"))
         return await self.create_profile(profile)

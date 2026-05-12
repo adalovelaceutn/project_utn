@@ -95,7 +95,7 @@ async def rpc_dispatcher(request: JSONRPCRequest) -> JSONResponse:
                 _error_response(req_id, -32602, str(exc)).model_dump()
             )
         try:
-            task = await _handler().send(params.id, params.message)
+            task = await _handler().send(params.id, params.message, params.metadata)
         except Exception as exc:
             return JSONResponse(
                 _error_response(req_id, -32000, f"tasks/send failed: {exc}").model_dump()
