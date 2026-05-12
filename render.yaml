@@ -32,7 +32,6 @@ services:
     dockerfilePath: ./data/Dockerfile
     plan: starter
     autoDeploy: true
-    healthCheckPath: /health
     envVars:
       - key: MONGO_URI
         value: mongodb://kolb_user:kolb_pass@mongodb:27017
@@ -68,7 +67,6 @@ services:
     dockerfilePath: ./profiler/Dockerfile
     plan: starter
     autoDeploy: true
-    healthCheckPath: /health
     envVars:
       - key: HF_TOKEN
         sync: false
@@ -94,7 +92,6 @@ services:
     dockerfilePath: ./main/Dockerfile
     plan: starter
     autoDeploy: true
-    healthCheckPath: /health
     envVars:
       - key: MAIN_HOST
         value: 0.0.0.0
