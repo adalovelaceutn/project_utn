@@ -10,7 +10,10 @@ from app.schemas import KolbProfileCreate, KolbProfileInDB, KolbProfileUpdate
 async def ensure_kolb_indexes() -> None:
     collection = get_kolb_collection()
     for index in await collection.list_indexes().to_list(length=None):
-        if index.get("key") == {"dni": 1} and index.get("unique"):
+        key = index.get("key")
+        is_unique = index.get("unique")
+        # Remove legacy unique indexes that conflict with the desired behavior.
+        if is_unique and key in ({"dni": 1}, {"alumno_id": 1}):
             await collection.drop_index(index["name"])
     await collection.create_index([("dni", ASCENDING)])
 
