@@ -36,6 +36,7 @@ export class DashboardPageComponent implements OnInit {
   selectedSection: DashboardSection = 'user';
   checkingProfile = true;
   kolbProfileExists = false;
+  private checkingFallbackId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private readonly authService: AuthService,
@@ -44,10 +45,11 @@ export class DashboardPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.startCheckingFallback();
+
     const user = this.authService.currentUser();
     if (!user) {
-      this.checkingProfile = false;
-      this.selectedSection = 'user';
+      this.finishChecking('user');
       return;
     }
 
@@ -57,7 +59,7 @@ export class DashboardPageComponent implements OnInit {
         timeout(8000),
         catchError(() => of(null)),
         finalize(() => {
-          this.checkingProfile = false;
+          this.finishChecking('kolb');
         })
       )
       .subscribe({
@@ -68,11 +70,34 @@ export class DashboardPageComponent implements OnInit {
       });
   }
 
+  private startCheckingFallback(): void {
+    this.clearCheckingFallback();
+    this.checkingFallbackId = setTimeout(() => {
+      this.finishChecking('kolb');
+    }, 12000);
+  }
+
+  private clearCheckingFallback(): void {
+    if (this.checkingFallbackId !== null) {
+      clearTimeout(this.checkingFallbackId);
+      this.checkingFallbackId = null;
+    }
+  }
+
+  private finishChecking(defaultSection: DashboardSection): void {
+    this.clearCheckingFallback();
+    this.checkingProfile = false;
+    if (this.selectedSection === 'user') {
+      this.selectedSection = defaultSection;
+    }
+  }
+
   selectSection(section: DashboardSection): void {
     this.selectedSection = section;
   }
 
   logout(): void {
+    this.clearCheckingFallback();
     this.authService.logout();
     this.router.navigate(['/auth']);
   }

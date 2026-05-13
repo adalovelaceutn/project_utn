@@ -59,7 +59,7 @@
             <mat-card-content>
               <ul>
                 <li *ngFor="let entry of theory.ejes | keyvalue">
-                  <strong>{{ entry.key }}:</strong> {{ entry.value }}
+                  <strong>{{ entry.key }}:</strong> {{ formatAxisValue(entry.value) }}
                 </li>
               </ul>
             </mat-card-content>

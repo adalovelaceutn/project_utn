@@ -156,4 +156,22 @@ export class KolbProfileComponent implements OnInit {
     }
     return 'Divergente';
   }
+
+  formatAxisValue(value: unknown): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((item) => this.formatAxisValue(item)).join(', ');
+    }
+
+    if (typeof value === 'object') {
+      return Object.entries(value as Record<string, unknown>)
+        .map(([key, item]) => `${key}: ${this.formatAxisValue(item)}`)
+        .join(' | ');
+    }
+
+    return String(value);
+  }
 }
