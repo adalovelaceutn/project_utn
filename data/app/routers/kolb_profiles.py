@@ -12,10 +12,7 @@ async def create_kolb_profile(profile: KolbProfileCreate) -> KolbProfileInDB:
     user = await crud_users.get_user_by_dni(profile.dni)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado para ese dni")
-    try:
-        return await crud_kolb_profiles.create_profile(profile)
-    except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    return await crud_kolb_profiles.create_profile(profile)
 
 
 @router.get("", response_model=list[KolbProfileInDB])

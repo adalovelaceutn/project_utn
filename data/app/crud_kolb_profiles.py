@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 from bson import ObjectId
 from pymongo import ASCENDING
-from pymongo.errors import DuplicateKeyError
 
 from app.database import get_kolb_collection
 from app.schemas import KolbProfileCreate, KolbProfileInDB, KolbProfileUpdate
@@ -10,7 +9,10 @@ from app.schemas import KolbProfileCreate, KolbProfileInDB, KolbProfileUpdate
 
 async def ensure_kolb_indexes() -> None:
     collection = get_kolb_collection()
-    await collection.create_index([("dni", ASCENDING)], unique=True)
+    for index in await collection.list_indexes().to_list(length=None):
+        if index.get("key") == {"dni": 1} and index.get("unique"):
+            await collection.drop_index(index["name"])
+    await collection.create_index([("dni", ASCENDING)])
 
 
 def _serialize_profile(document: dict) -> KolbProfileInDB:
@@ -25,10 +27,7 @@ async def create_profile(profile: KolbProfileCreate) -> KolbProfileInDB:
     payload["created_at"] = now
     payload["updated_at"] = now
 
-    try:
-        result = await collection.insert_one(payload)
-    except DuplicateKeyError as exc:
-        raise ValueError("El dni ya tiene perfil Kolb") from exc
+    result = await collection.insert_one(payload)
 
     saved = await collection.find_one({"_id": result.inserted_id})
     return _serialize_profile(saved)
