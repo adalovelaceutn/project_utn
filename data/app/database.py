@@ -1,4 +1,3 @@
-import certifi
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.config import settings
@@ -31,10 +30,7 @@ def get_users_collection():
 async def connect_to_mongo() -> None:
     global client
     if client is None:
-        client = AsyncIOMotorClient(
-            settings.mongo_uri,
-            tlsCAFile=certifi.where(),
-        )
+        client = AsyncIOMotorClient(settings.mongo_uri)
 
 
 async def close_mongo_connection() -> None:
