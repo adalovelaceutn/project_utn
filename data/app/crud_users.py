@@ -63,6 +63,14 @@ async def get_user_by_username(username: str) -> UserPublic | None:
     return _serialize_user(doc)
 
 
+async def get_user_by_dni(dni: str) -> UserPublic | None:
+    users = get_users_collection()
+    doc = await users.find_one({"dni": dni})
+    if doc is None:
+        return None
+    return _serialize_user(doc)
+
+
 async def authenticate_user(username: str, password: str) -> UserPublic | None:
     users = get_users_collection()
     doc = await users.find_one({"username": username})
