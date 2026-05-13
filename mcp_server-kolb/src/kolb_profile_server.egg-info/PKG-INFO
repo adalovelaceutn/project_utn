@@ -5,6 +5,8 @@ Summary: MCP server for Kolb profile operations
 Requires-Python: >=3.12
 Description-Content-Type: text/markdown
 Requires-Dist: mcp>=1.4.0
+Requires-Dist: uvicorn[standard]>=0.32.0
+Requires-Dist: watchfiles>=0.24.0
 Provides-Extra: dev
 Requires-Dist: pytest>=8.0.0; extra == "dev"
 Requires-Dist: ruff>=0.6.0; extra == "dev"

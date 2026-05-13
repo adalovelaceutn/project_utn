@@ -1,4 +1,6 @@
 mcp>=1.4.0
+uvicorn[standard]>=0.32.0
+watchfiles>=0.24.0
 
 [dev]
 pytest>=8.0.0
